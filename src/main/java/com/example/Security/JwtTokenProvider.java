@@ -46,6 +46,18 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
@@ -75,4 +87,5 @@ public class JwtTokenProvider {
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
+
 }
