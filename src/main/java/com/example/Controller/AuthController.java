@@ -3,6 +3,7 @@ package com.example.Controller;
 import com.example.Model.User;
 import com.example.Repository.UserRepository;
 import com.example.Request.LoginRequest;
+import com.example.Request.SignupRequest;
 import com.example.Response.JwtResponse;
 import com.example.Security.JwtTokenProvider;
 import jakarta.validation.Valid;
@@ -50,6 +51,32 @@ public class AuthController {
                 user.getUsername(),
                 user.getEmail()
                 ));
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> registeredUser(@Valid @RequestBody SignupRequest signupRequest){
+
+        if(userRepository.existsByUsername(signupRequest.getUsername())){
+            return ResponseEntity
+                    .badRequest()
+                    .body("Errore : Username già in uso");
+        }
+
+        if (userRepository.existsByEmail(signupRequest.getEmail())){
+            return ResponseEntity
+                    .badRequest()
+                    .body("Errore : Email già in uso");
+        }
+
+        User user = User.builder()
+                .username(signupRequest.getUsername())
+                .email(signupRequest.getEmail())
+                .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .build();
+
+        userRepository.save(user);
+        return ResponseEntity.ok("Utente registrato con successo!");
+
     }
 
 }
