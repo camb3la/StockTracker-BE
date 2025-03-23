@@ -24,10 +24,10 @@ public class AlphaVantageService {
     private final ObjectMapper objectMapper;
 
     @Value("${alphavantage.api-key}")
-    private final String apiKey;
+    private String apiKey;
 
     @Value("${alphavantage.base-url}")
-    private final String baseUrl;
+    private String baseUrl;
 
     public List<Stock> searchStock(String query){
 
