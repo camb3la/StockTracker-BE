@@ -1,5 +1,6 @@
 package com.example.Repository;
 
+import com.example.Model.Stock;
 import com.example.Model.User;
 import com.example.Model.Watchlist;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +19,7 @@ public interface WatchlistRepository extends JpaRepository<Watchlist, Long> {
     Optional<Watchlist> findByIdAndUserId(Long id, Long userId);
 
     boolean existByNameAndUserId(String name, Long userId);
+
+    List<Stock> getStocksFromWatchList(Long id, Long userId);
 
 }
