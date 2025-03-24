@@ -24,7 +24,7 @@ public class WatchlistService {
         return watchlistRepository.findByUserId(userId);
     }
 
-    public Optional<Watchlist> getWatchListByIdUserAndUserId(Long watchlistId, Long userId){
+    public Optional<Watchlist> getWatchListByIdAndUserId(Long watchlistId, Long userId){
         return watchlistRepository.findByIdAndUserId(watchlistId,userId);
     }
 
