@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,5 +58,51 @@ public class AlphaVantageService {
             return Collections.emptyList();
         }
     }
+
+    public Stock getStockDetails(String symbol) {
+        try {
+            String quoteUrl = baseUrl + "?function=GLOBAL_QUOTE&symbol=" + symbol + "&apikey=" + apiKey;
+            ResponseEntity<String> quoteResponse = restTemplate.getForEntity(quoteUrl, String.class);
+
+            JsonNode quoteNode = objectMapper.readTree(quoteResponse.getBody()).path("Global Quote");
+
+            if (quoteNode.isEmpty()) {
+                throw new RuntimeException("Nessun dato trovato per il simbolo: " + symbol);
+            }
+
+            String overviewUrl = baseUrl + "?function=OVERVIEW&symbol=" + symbol + "&apikey=" + apiKey;
+            ResponseEntity<String> overviewResponse = restTemplate.getForEntity(overviewUrl, String.class);
+
+            JsonNode overviewNode = objectMapper.readTree(overviewResponse.getBody());
+
+            Stock stock = new Stock();
+            stock.setSymbol(symbol);
+            stock.setName(overviewNode.path("Name").asText(symbol));
+            stock.setExchangeName(overviewNode.path("Exchange").asText());
+            stock.setCurrency(overviewNode.path("Currency").asText("USD"));
+
+
+            String priceStr = quoteNode.path("05. price").asText("0");
+            stock.setCurrentPrice(new BigDecimal(priceStr));
+
+            String changeStr = quoteNode.path("09. change").asText("0");
+            String changePercentStr = quoteNode.path("10. change percent").asText("0%").replace("%", "");
+
+            stock.setDailyChange(new BigDecimal(changeStr));
+            stock.setDailyChangePercent(new BigDecimal(changePercentStr));
+
+            String volumeStr = quoteNode.path("06. volume").asText("0");
+            stock.setVolume(new BigDecimal(volumeStr));
+
+            String marketCapStr = overviewNode.path("MarketCapitalization").asText("0");
+            stock.setMarketCap(new BigDecimal(marketCapStr));
+
+            return stock;
+        } catch (Exception e) {
+            log.error("Errore durante il recupero dei dettagli dell'azione: {}", e.getMessage(), e);
+            throw new RuntimeException("Errore durante il recupero dei dettagli dell'azione", e);
+        }
+    }
+
 
 }
