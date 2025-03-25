@@ -1,5 +1,6 @@
 package com.example.Repository;
 
+import com.example.Model.Stock;
 import com.example.Model.User;
 import com.example.Model.Watchlist;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,7 +27,7 @@ public interface WatchlistRepository extends JpaRepository<Watchlist, Long> {
             "WHERE w.id = :watchlistId " +
             "AND w.user.id = :userId " +
             "AND s.symbol = :stockSymbol")
-    boolean getStocksFromWatchList(
+    Stock getStocksFromWatchList(
             @Param("watchlistId") Long watchlistId,
             @Param("userId") Long userId,
             @Param("stockSymbol") String stockSymbol

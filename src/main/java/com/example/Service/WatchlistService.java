@@ -30,7 +30,7 @@ public class WatchlistService {
 
     @Transactional
     public Watchlist createWatchList(Long userId, String name, String description){
-        if (watchlistRepository.existByNameAndUserId(name, userId)) {
+        if (watchlistRepository.existsByNameAndUserId(name, userId)) {
             throw new IllegalArgumentException("Esiste già una watchlist con questo nome");
         }
 
@@ -70,19 +70,15 @@ public class WatchlistService {
         Watchlist watchlist = watchlistRepository.findByIdAndUserId(watchlistId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Watchlist non trovata o non appartiene all'utente"));
 
-        final Stock[] result = new Stock[1];
+        Stock stockToRemove = watchlistRepository.getStocksFromWatchList(watchlistId, userId, symbol);
 
-
-        watchlistRepository.getStocksFromWatchList(watchlistId, userId).forEach(
-                stock -> {
-                    if (stock.getSymbol().equals(symbol)){
-                       result[0] = stock;
-                    }
-                }
-        );
-
-        watchlist.removeStock(result[0]);
-        return watchlistRepository.save(watchlist);
+        if(!(stockToRemove ==null)){
+            watchlist.removeStock(stockToRemove);
+            return watchlistRepository.save(watchlist);
+        }
+        else {
+            throw new IllegalArgumentException("Stco non presente in watchlist");
+        }
     }
 
 }
