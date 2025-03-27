@@ -18,7 +18,10 @@ public interface WatchlistRepository extends JpaRepository<Watchlist, Long> {
 
     List<Watchlist> findByUserId(Long userId);
 
-    Optional<Watchlist> findByIdAndUserId(Long id, Long userId);
+    @Query(value = "SELECT * FROM watchlist WHERE id = :watchlistId AND user_id = :userId",
+            nativeQuery = true)
+    Optional<Watchlist> findByIdAndUserId(@Param("watchlistId") Long watchlistId,
+                                          @Param("userId") Long userId);
 
     boolean existsByNameAndUserId(String name, Long userId);
 
