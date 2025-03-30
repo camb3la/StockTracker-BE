@@ -2,13 +2,13 @@ package com.example.Config;
 
 import com.example.Security.JwtAuthenticationFilter;
 import com.example.Security.JwtTokenProvider;
-import com.example.Service.UserDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -22,9 +22,9 @@ import java.util.Arrays;
 public class WebSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailService userDetailService;
+    private final UserDetailsService userDetailService;
 
-    public WebSecurityConfig(JwtTokenProvider jwtTokenProvider, UserDetailService userDetailService) {
+    public WebSecurityConfig(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailService = userDetailService;
     }
@@ -48,8 +48,10 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Permette esplicitamente le richieste OPTIONS
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/watchlists/**").authenticated()
+                        .anyRequest().authenticated()
                 );
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailService),
