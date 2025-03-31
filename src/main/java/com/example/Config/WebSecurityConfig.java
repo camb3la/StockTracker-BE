@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/watchlists/**").authenticated()
+                        .requestMatchers("/api/stock/**").permitAll() // Consenti accesso pubblico agli endpoint stock
                         .anyRequest().authenticated()
                 );
 
