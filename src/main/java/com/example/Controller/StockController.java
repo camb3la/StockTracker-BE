@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/stock")
 @RequiredArgsConstructor
 @Tag(name = "Stock", description = "Api per la gestione delle azioni")
+@CrossOrigin(origins = "http://localhost:4200")
 public class StockController {
 
     private final AlphaVantageService alphaVantageService;
@@ -23,6 +24,13 @@ public class StockController {
     public ResponseEntity<List<Stock>> searchStock(@RequestParam String query){
         List<Stock> stocks = alphaVantageService.searchStock(query);
         return ResponseEntity.ok(stocks);
+    }
+
+    @GetMapping("/details/{symbol}")
+    @Operation(summary = "Ottieni dettagli di un'azione per simbolo")
+    public ResponseEntity<Stock> getStockDetails(@PathVariable String symbol){
+        Stock stock = alphaVantageService.getStockDetails(symbol);
+        return ResponseEntity.ok(stock);
     }
 
 }
