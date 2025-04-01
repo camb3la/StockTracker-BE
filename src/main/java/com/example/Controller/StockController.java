@@ -19,13 +19,6 @@ public class StockController {
 
     private final AlphaVantageService alphaVantageService;
 
-    @GetMapping("/search")
-    @Operation(summary = "Cerca Azioni per nome o simbolo")
-    public ResponseEntity<List<Stock>> searchStock(@RequestParam String query){
-        List<Stock> stocks = alphaVantageService.searchStock(query);
-        return ResponseEntity.ok(stocks);
-    }
-
     @GetMapping("/details/{symbol}")
     @Operation(summary = "Ottieni dettagli di un'azione per simbolo")
     public ResponseEntity<Stock> getStockDetails(@PathVariable String symbol){
