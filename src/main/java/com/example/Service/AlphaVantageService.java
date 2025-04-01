@@ -208,7 +208,7 @@ public class AlphaVantageService {
             // Rilancia le eccezioni AlphaVantageException già generate
             throw e;
         } catch (Exception e) {
-            log.error("Errore durante il recupero dei dettagli dell'azione: {}", e.getMessage(), e);
+            log.error("Errore dettagliato durante il recupero dei dettagli dell'azione {}: {}", symbol, e.getMessage(), e);
             throw new AlphaVantageException(
                     "Errore durante il recupero dei dettagli dell'azione: " + e.getMessage(),
                     AlphaVantageException.ErrorType.UNKNOWN_ERROR,

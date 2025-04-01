@@ -1,5 +1,6 @@
 package com.example.Service;
 
+import com.example.Exception.AlphaVantageException;
 import com.example.Model.Stock;
 import com.example.Model.User;
 import com.example.Model.Watchlist;
@@ -55,7 +56,7 @@ public class WatchlistService {
     }
 
     @Transactional
-    public Watchlist addStockToWatchlist(Long watchlistId, Long userId, String symbol){
+    public Watchlist addStockToWatchlist(Long watchlistId, Long userId, String symbol) {
         Watchlist watchlist = watchlistRepository.findByIdAndUserId(watchlistId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Watchlist non trovata o non appartiene all'utente"));
 
@@ -64,14 +65,35 @@ public class WatchlistService {
             throw new IllegalArgumentException("Il simbolo " + symbol + " è già presente nella watchlist");
         }
 
-        try{
+        try {
             Stock stockDetails = alphaVantageService.getStockDetails(symbol);
             watchlist.addStock(stockDetails);
             return watchlistRepository.save(watchlist);
-
         }
-        catch (Exception e){
-            throw new IllegalArgumentException("Simbolo non valido: " + symbol);
+        catch (AlphaVantageException e) {
+            // Gestisci specificamente le eccezioni di AlphaVantage e fornisci messaggi di errore più utili
+            switch (e.getErrorType()) {
+                case API_LIMIT_EXCEEDED:
+                    throw new IllegalArgumentException("Limite di chiamate API superato. Riprova più tardi.");
+                case INVALID_API_KEY:
+                    throw new IllegalArgumentException("Problema di autenticazione con il servizio di quotazioni.");
+                case NO_DATA_FOUND:
+                    throw new IllegalArgumentException("Nessun dato trovato per il simbolo: " + symbol);
+                case SERVICE_UNAVAILABLE:
+                    throw new IllegalArgumentException("Servizio di quotazioni non disponibile. Riprova più tardi.");
+                case NETWORK_ERROR:
+                    throw new IllegalArgumentException("Errore di connessione al servizio di quotazioni.");
+                case INVALID_RESPONSE:
+                    throw new IllegalArgumentException("Risposta non valida dal servizio di quotazioni per: " + symbol);
+                default:
+                    throw new IllegalArgumentException("Errore durante il recupero dei dettagli del simbolo: " + symbol);
+            }
+        }
+        catch (Exception e) {
+            // Log dell'eccezione per debug
+            System.err.println("Errore imprevisto durante l'aggiunta del simbolo " + symbol + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new IllegalArgumentException("Errore imprevisto durante l'aggiunta del simbolo: " + symbol);
         }
     }
 
