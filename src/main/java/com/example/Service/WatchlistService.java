@@ -59,10 +59,20 @@ public class WatchlistService {
         Watchlist watchlist = watchlistRepository.findByIdAndUserId(watchlistId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Watchlist non trovata o non appartiene all'utente"));
 
-        Stock stockDetails = alphaVantageService.getStockDetails(symbol);
+        Stock existingStock = watchlistRepository.getStocksFromWatchList(watchlistId, userId, symbol);
+        if (existingStock != null) {
+            throw new IllegalArgumentException("Il simbolo " + symbol + " è già presente nella watchlist");
+        }
 
-        watchlist.addStock(stockDetails);
-        return watchlistRepository.save(watchlist);
+        try{
+            Stock stockDetails = alphaVantageService.getStockDetails(symbol);
+            watchlist.addStock(stockDetails);
+            return watchlistRepository.save(watchlist);
+
+        }
+        catch (Exception e){
+            throw new IllegalArgumentException("Simbolo non valido: " + symbol);
+        }
     }
 
     @Transactional

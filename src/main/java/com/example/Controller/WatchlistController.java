@@ -68,7 +68,7 @@ public class WatchlistController {
     }
 
     @PostMapping("/{watchlistId}/stocks")
-    public ResponseEntity<Watchlist> addStockToWatchlist(
+    public ResponseEntity<?> addStockToWatchlist(
             @PathVariable Long watchlistId,
             @RequestBody Map<String, String> request) {
         Long userId = getCurrentUserId();
@@ -78,7 +78,13 @@ public class WatchlistController {
             Watchlist watchlist = watchlistService.addStockToWatchlist(watchlistId, userId, symbol);
             return ResponseEntity.ok(watchlist);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            String errorMessage = e.getMessage();
+            if (errorMessage.contains("già presente")) {
+                return ResponseEntity.status(409)
+                        .body(Map.of("error", errorMessage));
+            }
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Impossibile aggiungere l'azione. Verifica che il simbolo sia corretto."));
         }
     }
 
