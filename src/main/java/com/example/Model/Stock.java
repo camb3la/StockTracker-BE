@@ -1,10 +1,8 @@
 package com.example.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,11 +11,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "stocks")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
+@EqualsAndHashCode(exclude = "watchlists")
+@ToString(exclude = "watchlists")
 public class Stock {
 
     @Id
@@ -50,10 +50,8 @@ public class Stock {
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "stocks")
     private Set<Watchlist> watchlists = new HashSet<>();
-
-    @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PriceAnalysis> priceAnalyses = new HashSet<>();
 
 }

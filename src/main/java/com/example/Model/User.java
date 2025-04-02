@@ -33,8 +33,4 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Watchlist> watchlists = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PriceAnalysis> priceAnalyses = new HashSet<>();
-
-
 }

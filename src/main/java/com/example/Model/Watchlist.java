@@ -1,20 +1,21 @@
 package com.example.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 import java.util.HashSet;
 
+
 @Entity
 @Table(name = "watchlist")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "stocks")
+@ToString(exclude = "stocks")
 public class Watchlist {
 
     @Id
@@ -39,11 +40,12 @@ public class Watchlist {
     private Set<Stock> stocks = new HashSet<>();
 
     public void addStock(Stock stock) {
-        stocks.add(stock);
+        this.stocks.add(stock);
+        stock.getWatchlists().add(this);
     }
 
     public void removeStock(Stock stock) {
-        stocks.remove(stock);
+        this.stocks.remove(stock);
+        stock.getWatchlists().remove(this);
     }
-
 }
